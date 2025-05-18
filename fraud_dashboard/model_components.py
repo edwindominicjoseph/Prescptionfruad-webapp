@@ -5,11 +5,18 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import LabelEncoder
 from datetime import datetime, timedelta
+import requests
+from io import StringIO
 import os
 
 # --- Load Dataset ---
-url = "https://drive.google.com/file/d/1Il7nb24z1hktzJb6oX-Bj1U0-ikdJmT-/view?usp=drive_link"
-df3 = pd.read_csv(url)
+
+file_id = "1Il7nb24z1hktzJb6oX-Bj1U0-ikdJmT-"  # Replace with your actual file ID
+url = f"https://drive.google.com/uc?export=download&id={file_id}"
+
+response = requests.get(url)
+df3 = pd.read_csv(StringIO(response.text))
+
 
 df3 = df3.drop(columns=['PATIENT_enc', 'Id_patient', 'Id', 'HEALTHCARE_COVERAGE', 'TOTAL_CLAIM_COST'])
 df3 = df3.rename(columns={'PATIENT_med': 'PATIENT_ID'})
