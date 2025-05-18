@@ -8,8 +8,10 @@ from datetime import datetime, timedelta
 import os
 
 # --- Load Dataset ---
-df = pd.read_csv("C:/Fruad detection_1st_prototype/data/merged 1.csv")
-df3 = df.drop(columns=['PATIENT_enc', 'Id_patient', 'Id', 'HEALTHCARE_COVERAGE', 'TOTAL_CLAIM_COST'])
+url = "https://drive.google.com/file/d/1Il7nb24z1hktzJb6oX-Bj1U0-ikdJmT-/view?usp=drive_link"
+df = pd.read_csv(url)
+
+df3 = df3.drop(columns=['PATIENT_enc', 'Id_patient', 'Id', 'HEALTHCARE_COVERAGE', 'TOTAL_CLAIM_COST'])
 df3 = df3.rename(columns={'PATIENT_med': 'PATIENT_ID'})
 
 # --- Medication Risk Categorization ---
