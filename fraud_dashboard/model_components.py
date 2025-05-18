@@ -8,14 +8,25 @@ from datetime import datetime, timedelta
 import requests
 from io import StringIO
 import os
+import streamlit as st
 
 # --- Load Dataset ---
 
-file_id = "1Il7nb24z1hktzJb6oX-Bj1U0-ikdJmT-"  # Replace with your actual file ID
-url = f"https://drive.google.com/uc?export=download&id={file_id}"
 
-response = requests.get(url)
-df3 = pd.read_csv(StringIO(response.text))
+
+url = "https://www.dropbox.com/scl/fi/h9nz2ij8ed8ibrfmtlq2j/merged-1.csv?rlkey=h4n91isfstch062fi25i8pbf9&st=bhtiyywu&dl=1"
+
+@st.cache_data
+def load_data_from_dropbox(url):
+    return pd.read_csv(url)
+
+df = load_data_from_dropbox(url)
+st.success("✅ Loaded data from Dropbox")
+
+
+
+df3 = df.drop(columns=['PATIENT_enc', 'Id_patient', 'Id', 'HEALTHCARE_COVERAGE', 'TOTAL_CLAIM_COST'])
+df3 = df3.rename(columns={'PATIENT_med': 'PATIENT_ID'})
 
 
 
@@ -38,6 +49,7 @@ def categorize_risk(med_name):
         return "Moderate Risk"
     else:
         return "Low Risk"
+
 
 df3["MEDICATION_RISK"] = df3["DESCRIPTION_med"].apply(categorize_risk)
 risk_mapping = {"Low Risk": 0, "Moderate Risk": 1, "High Risk": 2}
