@@ -18,8 +18,7 @@ response = requests.get(url)
 df3 = pd.read_csv(StringIO(response.text))
 
 
-df3 = df3.drop(columns=['PATIENT_enc', 'Id_patient', 'Id', 'HEALTHCARE_COVERAGE', 'TOTAL_CLAIM_COST'])
-df3 = df3.rename(columns={'PATIENT_med': 'PATIENT_ID'})
+
 
 # --- Medication Risk Categorization ---
 high_risk_keywords = ["oxycodone", "hydrocodone", "fentanyl", "morphine", "codeine",
