@@ -14,7 +14,7 @@ import streamlit as st
 
 
 
-url = "https://www.dropbox.com/scl/fi/h9nz2ij8ed8ibrfmtlq2j/merged-1.csv?rlkey=h4n91isfstch062fi25i8pbf9&st=bhtiyywu&dl=1"
+url = "https://dl.dropboxusercontent.com/scl/fi/6ywj9gvt6ks0r23o6gvi4/merged1.csv?rlkey=af0v35fel7t83ieqlbe348xyj&st=0bwlnu8c"
 
 @st.cache_data
 def load_data_from_dropbox(url):
