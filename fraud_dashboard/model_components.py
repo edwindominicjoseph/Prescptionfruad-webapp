@@ -13,19 +13,12 @@ import streamlit as st
 # --- Load Dataset ---
 
 
-
-url = "https://dl.dropboxusercontent.com/scl/fi/6ywj9gvt6ks0r23o6gvi4/merged1.csv?rlkey=af0v35fel7t83ieqlbe348xyj&st=0bwlnu8c"
-
-@st.cache_data
-def load_data_from_dropbox(url):
-    return pd.read_csv(url)
-
-df = load_data_from_dropbox(url)
-st.success("✅ Loaded data from Dropbox")
+df3= pd.read_csv("C:/Fruad detection_1st_prototype/data/merged_Fullcover.csv")
 
 
 
-df3 = df.drop(columns=['PATIENT_enc', 'Id_patient', 'Id', 'HEALTHCARE_COVERAGE', 'TOTAL_CLAIM_COST'])
+
+
 df3 = df3.rename(columns={'PATIENT_med': 'PATIENT_ID'})
 
 
