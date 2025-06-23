@@ -2,6 +2,11 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime, timedelta
 import os
+import numpy as np
+import shap
+import matplotlib.pyplot as plt
+import streamlit.components.v1 as components
+
 from model_components import predict_fraud
 from utils import (
     plot_fraud_pie,
@@ -12,13 +17,6 @@ from utils import (
 # --- Page Setup ---
 st.set_page_config(page_title="Prescription Fraud Dashboard", layout="wide")
 st.title("💊 Prescription Fraud Detection")
-import os
-import pandas as pd
-
-
-
-
-
 
 # --- Load Predictions File ---
 PREDICTIONS_PATH = "outputs/predictions.csv"
@@ -79,6 +77,24 @@ with st.expander("🔍 Check Single Prescription"):
         st.caption(f"Used Model: {result['used_model']}")
         st.error("🟥 Fraud Detected" if result["fraud"] else "🟩 Not Fraudulent")
 
+        # --- SHAP Force Plot Explanation ---
+        if st.button("🔎 Show SHAP Explanation"):
+            st.subheader("🔍 SHAP Force Plot Explanation")
+
+            shap_values = np.array(result["shap_values"])
+            shap_features = pd.DataFrame([result["shap_features"]])
+            feature_names = shap_features.columns.tolist()
+
+            exp = shap.Explanation(
+                values=shap_values,
+                base_values=np.mean(shap_values),
+                data=shap_features.values[0],
+                feature_names=feature_names
+            )
+
+            shap_html = shap.plots.force(exp, matplotlib=False, show=False)
+            components.html(shap.getjs() + shap_html.html(), height=300)
+
 # --- Top Visualizations ---
 st.markdown("### 📊 Visual Insights (Last 7 Days)")
 if not df_results.empty:
@@ -86,22 +102,13 @@ if not df_results.empty:
     df_recent["timestamp"] = pd.to_datetime(df_recent["timestamp"], errors="coerce")
     df_recent = df_recent[df_recent["timestamp"].notnull() & (df_recent["timestamp"] >= datetime.now() - timedelta(days=7))]
 
+    col1, col2 = st.columns(2)
+    with col1:
+        plot_fraud_pie(df_recent)
+    with col2:
+        plot_top_meds_donut(df_recent)
 
-
-# Narrow cards row (2 cols)
-col1, col2 = st.columns(2)
-with col1:
-    plot_fraud_pie(df_recent)
-with col2:
-    plot_top_meds_donut(df_recent)
-
-# Wide full-row risk trend
-plot_risk_score_trend(df_recent)  # Full width here
-
-
-
-    
-
+    plot_risk_score_trend(df_recent)
 
 # --- Flagged Prescriptions Table ---
 st.markdown("### 🚨 Flagged Patients")
@@ -126,25 +133,18 @@ if not flagged.empty:
 else:
     st.info("No flagged entries yet.")
 
-
 # --- Clear Predictions ---
-
-
-PREDICTIONS_PATH = "outputs/predictions.csv"
 st.markdown("### 🧹 Clear Predictions")
 if st.button("Clear All Results"):
-    # Overwrite with just headers if file exists
     if os.path.exists(PREDICTIONS_PATH):
         df_empty = pd.DataFrame(columns=[
             "PATIENT_ID", "DESCRIPTION_med", "ENCOUNTERCLASS", "DISPENSES",
             "BASE_COST", "TOTALCOST", "AGE", "GENDER", "ETHNICITY", "MARITAL",
             "STATE", "PROVIDER", "ORGANIZATION",
-            "fraud", "risk_score", "medication_risk", "used_model", "timestamp"
+            "fraud", "risk_score", "medication_risk", "used_model",
+            "shap_features", "shap_values", "timestamp"
         ])
         df_empty.to_csv(PREDICTIONS_PATH, index=False)
         st.success("✅ All predictions have been cleared.")
-        
     else:
         st.info("No predictions found to clear.")
-
-
